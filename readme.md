@@ -1,7 +1,7 @@
 # Alpine-Unoconv
 
 This docker container gives a way to mass convert office files (such as doc and docx) to HTML.
-The images contained within the files are extracted and stored alongside the html files.
+The images contained within the files are extracted and embedded into the HTML output files.
 
 [unoconv](https://github.com/unoconv/unoconv) is the tool that is used to do the conversion (it uses [libreoffice](https://www.libreoffice.org/) as the backend). This tool is automatically downloaded during the build process, and not included as a part of this repo.
 
