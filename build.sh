@@ -31,7 +31,7 @@ echo "Removing previous build - An error here is expected if never built"
 docker images | grep ${IMGNAME} | awk '{print $3}' | xargs docker rmi
 
 # Build and name the Dockerfile
-echo "Building Container with files slipstreamed in from include-in-image dir"
+echo "Building Container with scripts from bin"
 docker build --tag ${IMGNAME} .
 
 # Mount the `docs` directory to /opt (empty on this image)
