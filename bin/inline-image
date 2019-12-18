@@ -43,9 +43,17 @@ class ImageUtility():
         with open(self.image_path, 'rb') as the_image:
             image_contents = base64.b64encode(the_image.read())
         the_image.close()
-        print(" > Deleting %s" % (self.image_path))
-        os.remove(self.image_path)
         return image_contents.decode('utf-8')
+
+    def delete_image(self):
+        """
+            Deletes the image, after it has already been embedded
+        """
+        if os.path.exists(self.image_path):
+            print(" > Deleting %s" % (self.image_path))
+            os.remove(self.image_path)
+            return
+        print(" ! Unable to delete %s, was it already deleted?" % (self.image_path))
 
 class HTMLUtility():
     """
@@ -115,6 +123,9 @@ class HTMLUtility():
             print(" > Embedding %s into %s" % (img_path, self.html_path))
             img_src = "data:%s;base64,%s" % (img_mime, img_b64)
             dest_image.attrs['src'] = img_src
+
+            # Remove the image as it is no longer needed
+            img_util.delete_image()
 
         self.write_html(str(soup))
 
