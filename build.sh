@@ -10,7 +10,7 @@ UCVERSION=0.8.2 # Latest release (there are newer tags, but not "released")
 # We download and install unoconv as it is GPL2, and thus
 # incompatible with the license this project is under
 echo "Downloading unoconv"
-rm bin/unoconv > /dev/null
+rm bin/unoconv 2> /dev/null
 curl -sL https://github.com/unoconv/unoconv/archive/${UCVERSION}.tar.gz -o ${UNOCONV}
 
 echo "Extracting unoconv"
