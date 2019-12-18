@@ -8,6 +8,7 @@ The images contained within the files are extracted and stored alongside the htm
 ## Installation and Usage
 
 1. Ensure that you have [Docker](https://docs.docker.com/get-started/) setup on your machine
+1. Download the latest [Alpine Linux](https://alpinelinux.org/) release - `sudo docker pull alpine:edge`
 1. Clone this repo - `git clone https://github.com/dtodd-wipeos/alpine-unoconv`
 1. Create a directory called `docs` inside this repository
 1. Fill the `docs` directory with your files. I've tested this with `doc` and `docx` formats, but any that libreoffice can read should work.
