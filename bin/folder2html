@@ -18,6 +18,8 @@ for file in *; do mv "$file" `echo $file | tr ' ' '_'` ; done
 for file in *.*; do
     echo "Converting $file to html"
     /usr/bin/python3 /bin/unoconv -f html $file
+    echo "Embedding images into html"
+    /usr/bin/python3 /bin/inline-image $file
 done
 
 echo "Done!"
