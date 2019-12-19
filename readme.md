@@ -1,7 +1,7 @@
 # Alpine-Unoconv
 
 This docker container gives a way to mass convert office files (such as doc and docx) to HTML.
-The images contained within the files are extracted and stored alongside the html files.
+The images contained within the files are extracted and embedded into the HTML output files.
 
 [unoconv](https://github.com/unoconv/unoconv) is the tool that is used to do the conversion (it uses [libreoffice](https://www.libreoffice.org/) as the backend). This tool is automatically downloaded during the build process, and not included as a part of this repo.
 
@@ -10,11 +10,12 @@ The images contained within the files are extracted and stored alongside the htm
 1. Ensure that you have [Docker](https://docs.docker.com/get-started/) setup on your machine
 1. Download the latest [Alpine Linux](https://alpinelinux.org/) release - `sudo docker pull alpine:edge`
 1. Clone this repo - `git clone https://github.com/dtodd-wipeos/alpine-unoconv`
-1. Create a directory called `docs` inside this repository
 1. Fill the `docs` directory with your files. I've tested this with `doc` and `docx` formats, but any that libreoffice can read should work.
-1. Build and run the container `sudo ./build.sh`. Subsequent runs will only require you to do `sudo ./run.sh`
-1. Your HTML and image files will be located alongside the documents
-1. Clear out the `docs` directory and add more files, using `run.sh` as needed
+    * The files **MUST NOT** be protected with a password. They will return garbled data (or even hang the container) otherwise
+5. Build and run the container `sudo ./build.sh`. Subsequent runs will only require you to do `sudo ./run.sh`
+1. The HTML version of the documents will be located in the `docs` directory, alongside your source documents
+    * Any images that were in the documents will be automatically extracted and embedded into the HTML files
+7. Clear out the `docs` directory and add more files, using `run.sh` as needed
 
 ## License - MIT
 

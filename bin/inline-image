@@ -1,0 +1,147 @@
+#!/usr/bin/env python
+# Part of Alpine-Unoconv
+# Copyright 2019-2020 David Todd <dtodd@oceantech.com>
+# License: MIT - Refer to license.md for more information
+
+# This script will parse an html file for <img> tags,
+# convert the image to base64, and embed it
+# in the html file
+
+import os
+import sys
+import base64
+import magic
+from bs4 import BeautifulSoup
+
+class ImageUtility:
+    """
+        Contains methods for determining a mimetype
+        and converting an image to base64
+    """
+
+    def __init__(self, image_path):
+        """
+            Contains information that is required
+            to run the included methods
+        """
+
+        self.image_path = image_path
+
+    def get_mimetype(self):
+        """
+            Returns the mimetype of the provided `self.file_path`
+        """
+
+        return magic.from_file(self.image_path, mime=True)
+
+    def convert_to_base64(self):
+        """
+            Returns the base64 representation of the provided `self.image_path`
+        """
+        image_contents = False
+        print(" > Converting %s to base64 for embedding" % (self.image_path))
+        with open(self.image_path, 'rb') as the_image:
+            image_contents = base64.b64encode(the_image.read())
+        the_image.close()
+        return image_contents.decode('utf-8')
+
+    def delete_image(self):
+        """
+            Deletes the image, after it has already been embedded
+        """
+        if os.path.exists(self.image_path):
+            print(" > Deleting %s" % (self.image_path))
+            os.remove(self.image_path)
+            return
+        print(" ! Unable to delete %s, was it already deleted?" % (self.image_path))
+
+class HTMLUtility:
+    """
+        Contains methods for making changes to a provided html file
+    """
+
+    def __init__(self, html_path):
+        """
+            Contains information that is required
+            to run the included methods
+        """
+
+        # When used in conjunction with alpine-unoconv, the file
+        # that gets set as an argument to this script is NOT
+        # html. However, the real html file has the same filename
+        # with `.html` as the extension. This is a hack, but it works
+        real_html_path = os.path.splitext(html_path)[0] + '.html'
+        self.html_path = real_html_path
+
+    def read_html(self):
+        """
+            Reads the entire HTML file into memory so
+            that we can replace it later
+        """
+        html_content = False
+        print(" > Reading %s" % (self.html_path))
+        # LibreOffice exports HTML files encoded as `ISO-8859-1` (`latin-1`)
+        # Python3 expects the encoding to be UTF-8 by default, which may have
+        # incompatible bytes
+        with open(self.html_path, 'r', encoding='iso-8859-1') as html_file:
+            html_content = html_file.read()
+        html_file.close()
+        return html_content
+
+    def write_html(self, content):
+        """
+            Overrites the `self.html_path` with `content`
+        """
+        print(" > Writing %s" % (self.html_path))
+        with open(self.html_path, 'w') as html_file:
+            html_file.write(content)
+        html_file.close()
+
+    def replace_image_with_inline(self):
+        """
+            Replaces all instances of <img> that
+            link to an actual file, with one that
+            contains the base64 representation of
+            the image
+        """
+        image_paths = []
+
+        # Determine the path where the files are located
+        base_path = os.path.split(self.html_path.rstrip(os.path.sep))[0]
+
+        soup = BeautifulSoup(self.read_html(), 'html.parser')
+
+        print(" > Parsing %s for <img> tags" % (self.html_path))
+        # Embed all the images first
+        for dest_image in soup.find_all('img'):
+            # Determine where the image is, relative to the html file
+            image_path = os.path.join(base_path, dest_image.attrs['src'])
+
+            # Store the path to the image for future deletion
+            if image_path not in image_paths:
+                image_paths.append(image_path)
+
+            # Create an instance of the conversion object
+            image_util = ImageUtility(image_path)
+
+            # Get the mimetype and base64 representation
+            image_mime = image_util.get_mimetype()
+            image_b64 = image_util.convert_to_base64()
+
+            # Change the image `src` link
+            print(" > Embedding %s into %s" % (image_path, self.html_path))
+            image_src = "data:%s;base64,%s" % (image_mime, image_b64)
+            dest_image.attrs['src'] = image_src
+
+        # Delete the images now that they have all been embedded
+        for image_path in image_paths:
+            image_util = ImageUtility(image_path)
+            # Remove the image as it is no longer needed
+            image_util.delete_image()
+
+        self.write_html(str(soup))
+
+if __name__ == '__main__':
+    print("> Preparing to embed")
+    HTMLUtility(sys.argv[1]).replace_image_with_inline()
+    print("> All Images embedded")

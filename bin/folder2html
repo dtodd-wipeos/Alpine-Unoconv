@@ -16,8 +16,14 @@ for file in *; do mv "$file" `echo $file | tr ' ' '_'` ; done
 
 # Convert each file to HTML, requires pyunolib (provided by libreoffice)
 for file in *.*; do
+    # Ignore any HTML files that may exist
+    [[ $file == *.html ]] && continue
+
     echo "Converting $file to html"
+    # This will overwrite any existing html files
     /usr/bin/python3 /bin/unoconv -f html $file
+    echo "Embedding images into html"
+    /usr/bin/python3 /bin/inline-image $file
 done
 
 echo "Done!"
